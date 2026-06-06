@@ -21,6 +21,8 @@ streamlit run app.py
 
 ### The Pipeline
 
+![System Architecture](diagram.svg)
+
 ```
 User Input (Streamlit)
     ↓
