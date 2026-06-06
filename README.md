@@ -11,7 +11,7 @@ of Indian narrative wisdom.
 
 ```bash
 pip install -r requirements.txt
-export OPENAI_API_KEY=your_key_here
+cp .env.example .env          # then paste your key inside
 streamlit run app.py
 ```
 
@@ -40,6 +40,21 @@ Final Story displayed in Streamlit
     ↓
 [Optional: User revision request] → one more rewrite pass
 ```
+
+---
+
+## Prompting & Agent Design Strategies
+
+| Technique | Where | Why |
+|---|---|---|
+| **Temperature calibration** | All modules | Judge: 0.2 (consistent scoring), Categorizer: 0.4 (accurate mapping), Rewriter: 0.75 (focused), Generator: 0.85 (creative warmth) |
+| **Structured JSON output** | Categorizer, Judge | LLM returns typed JSON; code parses into dataclasses. Keeps logic in Python, not prose |
+| **System / user role split** | All modules | System prompt = persona + hard rules. User prompt = the specific task. Separating them gives the model a stable identity |
+| **Knowledge injection (not RAG)** | Generator | Full 341-line mythology context baked into the system prompt as a rich static block — no vector DB needed at this scale |
+| **Surgical critique** | Judge → Rewriter | Judge names only weak dimensions; rewriter is explicitly told which dimensions are working and must not be touched |
+| **Best-of-N with bounded iterations** | main.py | Tracks highest-scoring story across all iterations. A rewrite can regress — always returning the best prevents quality from moving backwards |
+| **Archetype-driven generation** | Categorizer → Generator | One small, cheap LLM call first shapes the entire story. The categorizer's archetype, tone, wisdom figure, and setting flow into every subsequent prompt |
+| **User feedback loop** | app.py + rewriter | After the story is shown, the user can request any change in plain language — a separate rewrite pass handles it without re-running the full pipeline |
 
 ---
 
